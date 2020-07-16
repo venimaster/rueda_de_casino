@@ -1,8 +1,155 @@
 <!DOCTYPE html>
 <meta charset="UTF-8">
 <html lang="ru">
+<!--
+  <canvas id="canvas"></canvas>
+
+  <script>
+    function createShader(gl/*: WebGL2RenderingContext*/,
+	                  type,
+	                  source/*: string*/)/*: WebGLShader*/ {
+      var shader = gl.createShader(type);
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      var success = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+      if (success) {
+        return shader;
+      }
+     
+      console.log(gl.getShaderInfoLog(shader));
+      gl.deleteShader(shader);
+    }
+
+    function createProgram(gl/*: WebGL2RenderingContext*/,
+	    vertexShader/*: WebGLShader*/, fragmentShader/*: WebGLShader*/)/*: WebGLProgram*/ {
+      var program = gl.createProgram();
+      gl.attachShader(program, vertexShader);
+      gl.attachShader(program, fragmentShader);
+      gl.linkProgram(program);
+      var success = gl.getProgramParameter(program, gl.LINK_STATUS);
+      if (success) {
+        return program;
+      }
+     
+      console.log(gl.getProgramInfoLog(program));
+      gl.deleteProgram(program);
+    }
+
+function resizeCanvasToDisplaySize(canvas) {
+  var cssToRealPixels = window.devicePixelRatio || 1;
+
+  // Lookup the size the browser is displaying the canvas in CSS pixels
+  // and compute a size needed to make our drawingbuffer match it in
+  // device pixels.
+  var displayWidth  = Math.floor(canvas.clientWidth  * cssToRealPixels);
+  var displayHeight = Math.floor(canvas.clientHeight * cssToRealPixels);
+
+  // Check if the canvas is not the same size.
+  if (canvas.width  !== displayWidth ||
+      canvas.height !== displayHeight) {
+
+    // Make the canvas the same size
+    canvas.width  = displayWidth;
+    canvas.height = displayHeight;
+  }
+}
+function main () {
+    var canvas = document.getElementById("canvas");
+    var gl = canvas.getContext("webgl2");
+    if (!gl){
+      console.log("webgl2 not supported");
+      return;
+    }
+    var vertexShaderSource = `#version 300 es
+     
+    // an attribute is an input (in) to a vertex shader.
+    // It will receive data from a buffer
+    in vec4 a_position;
+     
+    // all shaders have a main function
+    void main() {
+     
+      // gl_Position is a special variable a vertex shader
+      // is responsible for setting
+      gl_Position = a_position;
+    }
+    `;
+     
+    var fragmentShaderSource = `#version 300 es
+     
+    // fragment shaders don't have a default precision so we need
+    // to pick one. highp is a good default. It means "high precision"
+    precision highp float;
+     
+    // we need to declare an output for the fragment shader
+    out vec4 outColor;
+     
+    void main() {
+      // Just set the output to a constant reddish-purple
+      outColor = vec4(1, 0, 0.5, 1);
+    }
+    `;
+
+    var vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+    var fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+    var program = createProgram(gl, vertexShader, fragmentShader);
+    var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+    var positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    
+        // three 2d points
+    var positions = [
+      0, 0,
+      0, 0.5,
+      0.7, 0,
+    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+    var vao = gl.createVertexArray();
+    gl.bindVertexArray(vao);
+
+    gl.enableVertexAttribArray(positionAttributeLocation);
+    
+    var size = 2;          // 2 components per iteration
+    var type = gl.FLOAT;   // the data is 32bit floats
+    var normalize = false; // don't normalize the data
+    var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
+    var offset = 0;        // start at the beginning of the buffer
+    gl.vertexAttribPointer(
+        positionAttributeLocation, size, type, normalize, stride, offset);
+
+    resizeCanvasToDisplaySize(gl.canvas);
+gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+
+    // Clear the canvas
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+
+    // Tell it to use our program (pair of shaders)
+    gl.useProgram(program);
+
+
+
+    // Bind the attribute/buffer set we want.
+    gl.bindVertexArray(vao);
+
+
+
+    var primitiveType = gl.TRIANGLES;
+    var offset = 0;
+    var count = 3;
+    gl.drawArrays(primitiveType, offset, count);
+}
+main();
+
+
+  </script> 
+  -->
   <head>
-    <title>Rueda de casino</title>
+    <title lang="es">Rueda de casino</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
 
@@ -24,19 +171,18 @@
 
     <div>
       <h1>Модификаторы команд</h1>
-      <p>Список часто встречающихся добавок к основным командам, которые
-      добавляют им те или иные действия.</p>
+      <p>Список часто встречающихся дополнений к основным командам.</p>
 
       <div>
-        <h2><a name="con_bulla">Con bulla</a></h2>
+        <h2><a name="con_bulla" lang="es">Con bulla</a></h2>
         <p>"кон буйа"</p>
-        <p>Со звуком/криком</p>
+        <p>Со криком "Хэй!"</p>
       </div>
 
       <div>
-        <h2><a name="con_bulla_largo">Con bulla largo</a></h2>
-        <p>"кон буйа ларго"</p>
-        <p>С протяжным звуком/криком</p>
+        <h2><a name="con_bulla_larga" lang="es">Con bulla largo</a></h2>
+        <p>"кон буйа ларга"</p>
+        <p>С протяжным криком</p>
       </div>
     </div>
 
@@ -45,7 +191,7 @@
       <p>Список часто встречающихся команд, произносимых во время действия
       других.</p>
       <div>
-        <h2><a name="basta">Basta</a></h2>
+        <h2><a name="basta" lang="es">Basta</a></h2>
         <p>"баста" - довольно</p>
         <p>Окончание команды, если требуется от кантора сигнал или если команду не
         подхватили все - как инструмент для остановки хаоса.</p>
@@ -58,7 +204,7 @@
     <h1>Команды</h1>
 
     <div>
-      <h2><a name="por_el_centro">Por el centro</a></h2>
+      <h2><a name="por_el_centro" lang="es">Por el centro</a></h2>
       <p>Закрытая позиция левым боком на центр круга - начало руэды. Шаг
       диагональный.</p>
       <details>
@@ -71,27 +217,27 @@
     </div>
 
     <div>
-      <h2><a name="arriba">Arriba</a></h2>
+      <h2><a name="arriba" lang="es">Arriba</a></h2>
       <p>"ариба" - вверх.</p>
       <p>Движемся вперёд.</p>
       <details>
-        <p>Означает "вперёд".</p>
+        <p>Означает движение "вперёд".</p>
         <p>Кач влево-вправо, а не вверх-вниз плечами.</p>
       </details>
     </div>
 
     <div>
-      <h2><a name="abajo">Abajo</a></h2>
-      <p>"абахо" - назад.</p>
+      <h2><a name="abajo" lang="es">Abajo</a></h2>
+      <p>"абахо" - вниз.</p>
       <p>Движемся назад.</p>
       <details>
-        <p>Означает "назад".</p>
+        <p>Означает движение "назад".</p>
         <p>Кач влево-вправо, а не вверх-вниз плечами.</p>
       </details>
     </div>
 
     <div>
-      <h2><a name="arriba_abajo">Arriba abajo</a></h2>
+      <h2><a name="arriba_abajo" lang="es">Arriba abajo</a></h2>
       <p>Базовый шаг Salsa casino вперёд-назад.</p>
       <details>
         <p>I-IV - вперёд, V-VIII - назад. Базовый шаг.</p>
@@ -99,7 +245,7 @@
     </div>
 
     <div>
-      <h2><a name="dame">Dame</a></h2>
+      <h2><a name="dame" lang="es">Dame</a></h2>
       <p>"дамэ" - дай мне.</p>
       <p>Dile que no со следующей партнёршей.</p>
       <details>
@@ -113,7 +259,7 @@
     </div>
 
     <div>
-      <h2><a name="dile_que_no">Dile que no</a></h2>
+      <h2><a name="dile_que_no" lang="es">Dile que no</a></h2>
       <p>"диле ке но" - скажи ему нет.</p>
       <p>Делаешь Dame и с новой партнёршей шаги на месте лицом в центр круга.</p>
       <details>
@@ -133,7 +279,7 @@
     </div>
 
     <div>
-      <h2><a name="dile_que_si">Dile que si</a></h2>
+      <h2><a name="dile_que_si" lang="es">Dile que sí</a></h2>
       <p>"диле ке си" - скажи ему да.</p>
       <p>Из шага лицом в круг тянешь её к себе в закрытую позицию вдоль
       круга.</p>
@@ -143,8 +289,8 @@
     </div>
 
     <div>
-      <h2><a name="paseala_adentro_y_afuera_por_arriba">Paseala adentro y afuera
-      [por arrba/abajo]</a></h2>
+      <h2><a name="paseala_adentro_y_afuera_por_arriba" lang="es">Paséala adentro y afuera
+      [por arriba/abajo]</a></h2>
       <p>"пасеала адентро и афуэра" - прогуляй внутрь и наружу</p>
       <p>Прогулка партнёрши в закрытой позиции в центр и из центра.</p>
       <details>
@@ -158,8 +304,8 @@
     </div>
 
     <div>
-      <h2><a name="paseala_por_de_atras">[Paseala] por de atras</a></h2>
-      <p>"[пасеала] пор де атрас" - прогуляй сзади.</p>
+      <h2><a name="paseala_por_detras" lang="es">[Paseala] por detrás</a></h2>
+      <p>"[пасеала] пор детрас" - прогуляй сзади.</p>
       <p>Топаешь на VII вбок, проводишь её за спиной, натяг и в исходную.</p>
       <details>
         <p>1. На VII делаешь громкий шаг вбок (вдоль круга) с весом (прямо синхронно топаем), 
@@ -180,8 +326,8 @@
     </div>
 
     <div>
-      <h2><a name="prima">Prima</a></h2>
-      <p>"прима"</p>
+      <h2><a name="prima" lang="es">Prima</a></h2>
+      <p>"прима" - двоюродная сестра (кузина).</p>
       <p>Ведёшь в закрытую позицию вдоль круга, проходишь под её левой рукой к
       следующей.</p>
       <details>
@@ -200,7 +346,7 @@
     </div>
 
     <div>
-      <h2><a name="prima_corta">Prima corta</a></h2>
+      <h2><a name="prima_corta" lang="es">Prima corta</a></h2>
       <p>"прима корта" - прима короткая.</p>
       <p>Ведёшь в закрытую позицию вдоль круга, вращение на месте, в центр
       рукой, в натяге на исходную.</p>
@@ -225,22 +371,22 @@
     </div>
 
     <div>
-      <h2><a name="un_tarro">Un tarro</a></h2>
-      <p>"ун тарро" - банка.</p>
+      <h2><a name="un_tarro" lang="es">Un tarro</a></h2>
+      <p>"ун тарро" - банка, горшок.</p>
       <p>В ходе Arriba поднимаешь левую руку и проходишь под ней к следующей
       партнёрше.</p>
     </div>
 
     <div>
-      <h2><a name="una_tarrita">Una tarrita</a></h2>
-      <p>"уна таррита" - маленький горшочек.</p>
+      <h2><a name="un_tarrito" lang="es">Un tarrito</a></h2>
+      <p>"ун таррито" - маленький горшочек.</p>
       <p>В ходе Arriba поднимаешь левую руку и под ней проводишь партнёршу к
       коллеге сзади, сам - к следующей партнёрше.</p>
     </div>
 
     <div>
-      <h2><a name="enchufla">Enchufla</a></h2>
-      <p>"энчуфла" - подключите [её?]</p>
+      <h2><a name="enchufla" lang="es">Enchufla</a></h2>
+      <p>"энчуфла" - подключи её</p>
       <p>Делаем Enchufla, переходим к следующей партнёрше.</p>
       <details>
         <p>Начинаем с обычного диагонального шага лицом в центр.</p>
@@ -257,8 +403,8 @@
     </div>
 
     <div>
-      <h2><a name="enchufla_doble">Enchufla doble</a></h2>
-      <p>"энчуфла добле" - подключите дважды.</p>
+      <h2><a name="enchufla_doble" lang="es">Enchufla doble</a></h2>
+      <p>"энчуфла добле" - подключи дважды.</p>
       <p>Делаем Enchufla двойную (придерживая её за плечо после первого).</p>
       <details>
         <p>1-2 как в Enchufla, но правой рукой берёшься за её левое плечо.</p>
@@ -269,7 +415,7 @@
     </div>
 
     <div>
-      <h2><a name="dame_por_las_manos">Dame por las manos</a></h2>
+      <h2><a name="dame_por_las_manos" lang="es">Dame por las manos</a></h2>
       <p>"дамэ пор лас манос" - дай мне руки.</p>
       <p>Dile que no правой рукой.</p>
       <details>
@@ -281,21 +427,21 @@
     </div>
 
     <div>
-      <h2><a name="otra_otra_vez">Otra / Otra vez</a></h2>
+      <h2><a name="otra_otra_vez" lang="es">Otra / Otra vez</a></h2>
       <p>"отра/отра вэ" - другой/снова.</p>
       <p>Повтор последней команды.</p>
     </div>
 
     <div>
-      <h2><a name="mentira_es_una_broma">Mentira / [Es] una broma</a></h2>
+      <h2><a name="mentira_es_una_broma" lang="es">Mentira / [Es] una broma</a></h2>
       <p>"ментира/[эс] уна брома" - ложь/шутка.</p>
       <p>Шутка, отмена последней команды.</p>
     </div>
 
     <div>
-      <h2><a name="prima_con_hermano">Prima con hermano</a></h2>
-      <p>"прима кон эрмано" - двоюродный брат с братом.</p>
-      <p>Prima + Enchufla + ручкой в центр.</p>
+      <h2><a name="prima_con_hermano" lang="es">Prima con hermano</a></h2>
+      <p>"прима кон эрмано" - двоюродная сестра с родным братом.</p>
+      <p>Prima + Enchufla + рукой в центр.</p>
       <details>
         <p>1. I-VIII Prima - проходя в арку, поворачиваемся к партнёрше.</p>
         <p>2. I-IV Enchufla.</p>
@@ -306,9 +452,9 @@
     </div>
 
     <div>
-      <h2><a name="prima_con_hermano_y_la_familia">Prima con hermano y la familia</a></h2>
-      <p>"прима кон эрмано и лa фамилиа" - двоюродный брат с братом и семьёй.</p>
-      <p>Prima, Enchufla doble, бегаете по кругу, зацепившись руками.</p>
+      <h2><a name="prima_con_hermano_y_la_familia" lang="es">Prima con hermano y la familia</a></h2>
+      <p>"прима кон эрмано и лa фамилиа" - двоюродная сестра с братом и семьёй.</p>
+      <p>Prima, Enchufla doble, бегаем по кругу, зацепившись руками.</p>
       <details>
         <p>1. I-IV Prima.</p>
         <p>2. V-VIII как Enchufla doble п. 2.</p>
@@ -321,7 +467,7 @@
     </div>
 
     <div>
-      <h2><a name="enchufla_arriba">Enchufla arriba</a></h2>
+      <h2><a name="enchufla_arriba" lang="es">Enchufla arriba</a></h2>
       <p>Делаешь Enchufla и идёшь к предыдущей партнёрше.</p>
       <details>
         <p>V - поворот пр ч.с. Рукой левой ведёшь её в поворот пр. ч.с.?</p>
@@ -332,7 +478,7 @@
     </div>
 
     <div>
-      <h2><a name="sombrero">Sombrero</a></h2>
+      <h2><a name="sombrero" lang="es">Sombrero</a></h2>
       <p>"сомбреро" - шляпа.</p>
       <p>Делаешь Sombrero и из него Dile que no.</p>
       <details>
@@ -350,7 +496,7 @@
     </div>
 
     <div>
-      <h2><a name="dame_dos_tres">Dame dos/tres</a></h2>
+      <h2><a name="dame_dos_tres" lang="es">Dame dos/tres</a></h2>
       <p>"дамэ дос/трэс" - дай мне два/три.</p>
       <p>Делаешь Dame и переходишь через одну/две партнёрши.</p>
       <details>
@@ -366,13 +512,13 @@
     </div>
 
     <div>
-      <h2><a name="principe_bueno">Principe bueno</a></h2>
+      <h2><a name="principe_bueno" lang="es">Principe bueno</a></h2>
       <p>"принсипе буэно" - принц хороший.</p>
       <p>Enchufla с поцелуем руки и переходом дальше.</p>
     </div>
 
     <div>
-      <h2><a name="principe_malo">Principe malo</a></h2>
+      <h2><a name="principe_malo" lang="es">Principe malo</a></h2>
       <p>"принсипе мало" - плохой принц.</p>
       <p>Enchufla и шлепок по попе: поднял её левую руку, переходишь под ней и
       шлёпаешь.</p>
@@ -385,7 +531,7 @@
     </div>
 
     <div>
-      <h2><a name="uno_dos_tres_con_uno_tres_con_rueda">Uno/Dos/Tres con
+      <h2><a name="uno_dos_tres_con_uno_tres_con_rueda" lang="es">Uno/Dos/Tres con
       uno/dos/tres [con rueda]</a></h2>
       <p>"уно/дос/трес кон уно/дос/трес [кон руэда]".</p>
       <p>Dame с хлопками. Первое число - количество женщин в Dame. Второе число
@@ -395,8 +541,8 @@
     </div>
 
     <div>
-      <h2><a name="enchufla_y_pajara">Enchufla y pajara</a></h2>
-      <p>"энчуфла и пахара" - подключи и играй.</p>
+      <h2><a name="enchufla_y_pajaro" lang="es">Enchufla y pájaro</a></h2>
+      <p>"энчуфла и пахаро" - подключи и птица.</p>
       <p>Enchufla и поворот.</p>
       <details>
         <p>1. Делаешь Enchufla I-IV.</p>
@@ -409,25 +555,26 @@
     </div>
 
     <div>
-      <h2><a name="enchufla_y_pajara_y_arriba">Enchufla y pajara y arriba</a></h2>
+      <h2><a name="enchufla_y_pajaro_y_arriba" lang="es">Enchufla y pájaro y arriba</a></h2>
       <p>Enchufla, вращение, хлопок, к предыдущей.</p>
       <details>
-        <p>1. Делаешь как Enchufla y pajara 1-2.</p>
+        <p>1. Делаешь как Enchufla y pájaro 1-2.</p>
         <p>2. На VII делаешь громкий шаг чуть вбок - слегка перекрываешь за спиной
-        партнёршу (шаг как в Por de atras).</p>
+        партнёршу (шаг как в Por detrás).</p>
         <p>3. На VIII делаешь хлопок.</p>
         <p>4. I заворачиваешь уже к предыдущей на Dile que no.</p>
       </details>
     </div>
 
     <div>
-      <h2><a name="enchufla_y_pajara_y_media">Enchufla y pajara y media</a></h2>
-      <p>"энчуфа и пахара и медиа" - подключи и играй в середину</p>
+      <h2><a name="enchufla_y_pajaro_y_al_medio" lang="es">Enchufla y pájaro y
+		      al medio</a></h2>
+      <p>"энчуфа и пахаро и aль медио" - подключи и играй в середину</p>
       <p>Enchufla, вращение с перехватом руки, и в центр.</p>
       <details>
-        <p>1. Делаешь как Enchufla pajara I-IV, но во время pajara смещаешься к
+        <p>1. Делаешь как Enchufla pájaro I-IV, но во время pájaro смещаешься к
         центру круга.</p>
-        <p>Во время pajara левой кистью крутишь пр. ч.с (мизинцем), чтобы
+        <p>Во время pájaro левой кистью крутишь пр. ч.с (мизинцем), чтобы
         повернуть её ладонь для перехвата за спиной правой рукой и выхода на
         "рукопожатие" за большие пальцы.</p>
         <p>2. На I в центр шаг, руки в центр типа "дай пять!" и крик. И дальше как
@@ -436,7 +583,7 @@
     </div>
 
     <div>
-      <h2><a name="enchufla_y_media_rosa">Enchufla y media/Rosa</a></h2>
+      <h2><a name="enchufla_y_al_medio_rosa" lang="es">Enchufla y al medio/Rosa</a></h2>
       <p>Enchufla, встаёшь между ней и следующей и базовый шаг в центр/из
       центра с 2 хлопками внутри.</p>
       <details>
@@ -456,8 +603,8 @@
         на катнора.</p>
       </div>
       <div>
-        <h3>[Hombres] derecho/izquerda</h3>
-        <p>"[хомбрес] деречо/изкьерда" - [парни] вправо/влево.</p>
+        <h3>[Hombres] derecha/izquerda</h3>
+        <p>"[омбрес] дереча/иcкьерда" - [парни] вправо/влево.</p>
         <p>Переход парней вправо/влево.</p>
         <details>
           <p>Все перемещения через центр круга!</p>
@@ -465,14 +612,14 @@
           <p>Руки на средний уровень и в стороны, чтобы упереться в ладони
           соседей.</p>
           <p>Правой толкаешь, левой держишь упругое взаимодействие (это
-          derecho).</p>
+          derecha).</p>
           <p>II-IV - смещаешься вправо/влево и на V-VIII снова отходишь из круга
           перед следующей партнёршей.</p>
         </details>
       </div>
       <div>
-        <h3>Mujeres derecho/izquerda</h3>
-        <p>"мухэрэс деречо/изкьерда" - девушки вправо/влево.</p>
+        <h3>Mujeres derecha/izquerda</h3>
+        <p>"мухэрэс деречa/иcкьерда" - девушки вправо/влево.</p>
         <p>Девушки вправо/влево.</p>
         <details>
           <p>То же делают девушки.</p>
@@ -489,13 +636,13 @@
         </details>
       </div>
       <div>
-        <h3>Todos derecho/izquerda</h3>
-        <p>"тодос ..."</p>
+        <h3>Todos derecha/izquerda</h3>
+        <p>"тодос деречa/иcкьерда"</p>
         <p>Все вместе - сначала парни переходят, потом девушки.</p>
       </div>
       <div>
-        <h3>Zero derecho/izquierda</h3>
-        <p>"зэро ..."</p>
+        <h3>Zero derecha/izquierda</h3>
+        <p>"сэро деречa/иcкьерда"</p>
 	<p>По кругу обходим партнёршу справа/слева и возвращаемся на своё
         место.</p>
         <details>
@@ -508,23 +655,23 @@
         </details>
       </div>
       <div>
-        <h3>(Sin fin)/Infinito derecho/izquierda</h3>
-        <p>"(син фин)/инфинито ..."</p>
+        <h3>(Sin fin)/Infinito derecha/izquierda</h3>
+        <p>"(син фин)/инфинито деречa/иcкьерда"</p>
 	<p>Обходим (следующую и нашу)/(нашу и следующую) партнёрш, делая знак
         бесконечности и возвращаясь на место.</p>
         <details>
-          <p>1. Как п.1 в Zero derecho/isquierda.</p>
-          <p>2. Как п.1 в Zero izquierda/derecho.</p>
+          <p>1. Как п.1 в Zero derecha/isquierda.</p>
+          <p>2. Как п.1 в Zero izquierda/derecha.</p>
 	  <p>Девушки не стоят на месте, а топают, смещаясь по кругу сначала по
           ч.с./пр. ч.с., потом наоборот - уступают.</p>
         </details>
       </div>
       <div>
-        <h3>Derecho-izquierda/izquierda-derecho</h3>
+        <h3>Derecha-izquierda/izquierda-derecha</h3>
         <p>Идём (вправо, потом влево) / (влево, потом вправо).</p>
       </div>
       <div>
-        <h3>Derecho-izquierda/izquierda-derecho todos</h3>
+        <h3>Derecha-izquierda/izquierda-derecha todos</h3>
         <p>Идём вправо, потом девушки вправо, мы влево, потом они влево.</p>
         <details>
           <p>1. I-IV Идём вправо/влево.</p>
@@ -536,8 +683,8 @@
         </details>
       </div>
       <div>
-        <h3>Tomala</h3>
-	<p>"томала" - возьми это.</p>
+        <h3>Tómala</h3>
+	<p>"томала" - возьми её.</p>
 	<p>Берёмся за руки и подхватываем девушек, идём  вдоль круга до
 	Basta.</p>
         <details>
@@ -561,8 +708,8 @@
     </div>
 
     <div>
-      <h2><a name="sacala">Sacala [por arriba/abajo]</a></h2>
-      <p>"сакала" - возьми это.</p>
+      <h2><a name="sacala" lang="es">Sácala [por arriba/abajo]</a></h2>
+      <p>"сакала" - возьми её [сверху/снизу].</p>
       <p>Поднимаешь левую руку и в образовавшуюся арку пропускаешь её.</p>
       <details>
 	<p>Делают, когда стоят боком в круг (Por el centro, Paseala adentro y
@@ -574,7 +721,7 @@
     </div>
 
     <div>
-      <h2><a name="dame_por_las_manos_y_dos_con_cuba">Dame por las manos y dos con Cuba</a></h2>
+      <h2><a name="dame_por_las_manos_y_dos_con_cuba" lang="es">Dame por las manos y dos con Cuba</a></h2>
       <p>Dame por las manos, поднимаешь руки аркой и делаешь dos под арку.<p>
       <details>
         <p>1. Делаешь  dame por las manos.</p>
@@ -592,7 +739,7 @@
     </div>
 
     <div>
-      <h2><a name="tres_pelotas">Tres pelotas</a></h2>
+      <h2><a name="tres_pelotas" lang="es">Tres pelotas</a></h2>
       <p>"трес пелотас" - 3 мяча.</p>
       <p>Делаем 3 раза Enchufla. После каждой по 1, 2 и 3 хлопка.</p>
       <details>
@@ -605,8 +752,8 @@
     </div>
 
     <div>
-      <h2><a name="festival_de_pelotas">Festival de pelotas</a></h2>
-      <p>"фустиваль де пилотас" - фестиваль мячей.</p>
+      <h2><a name="festival_de_pelotas" lang="es">Festival de pelotas</a></h2>
+      <p>"фeстиваль де пелотас" - фестиваль мячей.</p>
       <p>Делаем Enchufla и хлопок , Enchufla doble, 2 хлопка, Enchufla
       triple и 3 хлопка.</p>
       <details>
@@ -619,39 +766,39 @@
     </div>
 
     <div>
-      <h2><a name="peluquero">Peluquero</a></h2>
-      <p>"пелукэро" - цирюльник.</p>
+      <h2><a name="peluquero" lang="es">Peluquero</a></h2>
+      <p>"пелукэро" - парикмахер.</p>
       <p>Enchufla, лохматим женщину.</p>
     </div>
 
 
     <div>
-      <h2><a name="hasta_de_peluqueria">Hasta de pеluqueria</a></h2>
-      <p>"аста дэ пелукэрия" - до цирюльника.</p>
+      <h2><a name="hasta_la_peluqueria" lang="es">Hasta la pеluquería</a></h2>
+      <p>"аста ла пелукэрия" - до парикмахерской.</p>
       <p>Enchufla, приглаживаем причёску.</p>
     </div>
 
     <div>
-      <h2><a name="sombrero_con_mambo_con_bulla">Sombrero con Мambo [con bulla]</a></h2>
+      <h2><a name="sombrero_con_mambo_con_bulla" lang="es">Sombrero con Мambo [con bulla]</a></h2>
       <p>"сомбреро кон мамбо"</p>
       <p>Sombrero и кики на месте.</p>
       <details>
         <p>Делаем сомбреро. Вместо dile que no делаем шаги на месте и кики вперёд
         на I-VIII. И dile que no</p>
-        <p>Sombrero con mambo con bulla - на кики мы ещё и кричим.</p>
+	<p>Sombrero con mambo con bulla - на кики мы ещё и кричим "Хэй!".</p>
       </details>
     </div>
 
     <div>
-      <h2><a name="dame_doos">Dame do[o]s</a></h2>
-      <p>Пока кантор кричит "доооооооооооос", делаем несколько раз Dame dos.</p>
+      <h2><a name="dame_doos" lang="es">Dame do[o]s</a></h2>
+      <p>Пока кантор кричит "дооос!", делаем несколько раз Dame dos.</p>
       <details>
         <p>Из приличий: по окончании сказать basta - завершение команды.</p>
       </details>
     </div>
 
     <div>
-      <h2><a name="prima_bonita">Prima bonita/Прима красивая</a></h2>
+      <h2><a name="prima_bonita" lang="es">Prima bonita/Прима красивая</a></h2>
       <p>"прима бонита"</p>
       <p>Отшаг на V с занесением руки, закручивание в её руку с обходом.</p>
       <details>
@@ -666,8 +813,8 @@
     </div>
 
     <div>
-      <h2><a name="vacilala">Vacilala</a></h2>
-      <p>"басилала" - вакцинировать её.</p>
+      <h2><a name="vacilala" lang="es">Vacílala</a></h2>
+      <p>"басилала" - закрути/закружи её.</p>
       <p>Закручиваешь её в центр на I.</p>
       <details>
 	<p> 1. На I даёшь дугу со среднего уровня вниз и влево, закручивая её по
@@ -682,11 +829,12 @@
     </div>
 
     <div>
-      <h2><a name="vacilala_con_ella_arriba">Vacilala con ella [arriba]</a></h2>
-      <p>"басилала кон эйя ариба" - стесняйтесь с ней [вперёд].</p>
+      <h2><a name="vacila_con_ella_arriba" lang="es">Vacíla con ella [arriba]</a></h2>
+      <p>"басила кон эйя ариба" - кружись с ней (дословно – качайся, шатайся)
+      [вверх].</p>
       <p>Закручиваешь её в центр на I, и крутишься тоже.</p>
       <details>
-        <p>1. Делаешь Vacilala.</p>
+        <p>1. Делаешь Vacíla.</p>
         <p>2. Когда заводишь её на поворот, сам тоже поворачиваешься пр. ч.с. на I.
 	Делаешь 2 оборота (I-III, V-VII). Не забывай держать контакт глазами для
         соблюдения расстояния, чтобы не врезаться.</p>
@@ -696,8 +844,8 @@
     </div>
 
     <div>
-      <h2><a name="velorala">Velorala</a></h2>
-      <p>"белорала" - цени это.</p>
+      <h2><a name="velorala" lang="es">Valórala</a></h2>
+      <p>"белорала" - цени её.</p>
       <p>Выводишь её в центр и закручиваешь её на V.</p>
       <details>
         <p>Похожа на Vacilala, только на V её закручиваешь, выводя в центр на
@@ -706,15 +854,15 @@
     </div>
 
     <div>
-      <h2><a name="spaghetti">Spaghetti</a></h2>
-      <p>"спагетти" - спагетти.</p>
+      <h2><a name="espaghetti" lang="es">Espaghetti</a></h2>
+      <p>"эспагетти" - спагетти.</p>
       <p>Enchufla, проводишь по внутренней части её руки небритой мордой.</p>
     </div>
 
     <div>
-      <h2><a name="spaghetti_con_carne">Spaghetti con carne</a></h2>
-      <p>"спагетти кон карне" - мясные спагетти.</p>
-      <p>Spaghetti, кусаем за бочок.</p>
+      <h2><a name="espaghetti_con_carne" lang="es">Espaghetti con carne</a></h2>
+      <p>"эспагетти кон карне" - мясные спагетти.</p>
+      <p>Espaghetti, кусаем за бочок.</p>
       <details>
         <p>После Spaghetti поднимаем эту руку и подныриваем, делая вид, что
         кусаем за бочок.</p>
@@ -722,13 +870,13 @@
     </div>
 
     <div>
-      <h2><a name="macarrones">Macarrones</a></h2>
+      <h2><a name="macarrones" lang="es">Macarrones</a></h2>
       <p>"макаронес" - макароны.</p>
       <p>Enchufla, несколько раз кусаем внутреннюю часть её руки.</p>
     </div>
 
     <div>
-      <h2><a name="tres_maridos">Tres maridos</a></h2>
+      <h2><a name="tres_maridos" lang="es">Tres maridos</a></h2>
       <p>"трес маридос" - три мужа.</p>
       <p>Enchufla, потом 2 раза по щекам её, и чмок в щёчку.</p>
       <details>
@@ -739,9 +887,9 @@
     </div>
 
     <div>
-      <h2><a name="ricoje_un_kilo_la_moneda_con_rueda_vuelta_arriba">(Ricoje un
+      <h2><a name="recoge_un_kilo_la_moneda_con_rueda_vuelta_arriba" lang="es">(Recoge un
 kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
-      <p>"рикохэ ун кило/ла монеда" - монета.</p>
+      <p>"рекохэ ун кило/ла монеда" - монета.</p>
       <p>Enchufla, приседаешь до пола, поднимая монетку во время перехода.</p>
       <details>
         <p>Con rueda/vuelta - с вращением в полуприсяде.</p>
@@ -750,15 +898,15 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="mosquito">Mosquito</a></h2>
+      <h2><a name="mosquito" lang="es">Mosquito</a></h2>
       <p>"москито" - комар.</p>
       <p>Enchufla, во время перехода подпрыгиваешь и хлопаешь - ловишь
       комара.</p>
     </div>
 
     <div>
-      <h2><a name="lo_me_siente">Lo me siente</a></h2>
-      <p>"ло мэ сьенте" - я чувствую это.</p>
+      <h2><a name="me_lo_siento" lang="es">Me lo siento</a></h2>
+      <p>"ме ло сьенто" - мне жаль.</p>
       <p>Enchufla, и ползаем на коленях с оленьими глазами до basta.</p>
       <details>
         <p>1. Enchufla.</p>
@@ -774,8 +922,8 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="dame_por_cabeza">Dame por cabeza</a></h2>
-      <p>"дамэ пор кабэса" - дай мне голову.</p>
+      <h2><a name="dame_por_la_cabeza" lang="es">Dame por la cabeza</a></h2>
+      <p>"дамэ пор ла кабэса" - дай мне голову.</p>
       <p>Делаем dame за голову двумя руками.</p>
       <details>
         <p>Делаем аккуратно, весьма условно.</p>
@@ -783,8 +931,8 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="dame_por_nariz">Dame por nariz</a></h2>
-      <p>"дамэ пор нарис" - дай мне нос.</p>
+      <h2><a name="dame_por_la_nariz" lang="es">Dame por la nariz</a></h2>
+      <p>"дамэ пор ла нарис" - дай мне нос.</p>
       <p>Dame за нос.</p>
       <details>
 	<p>Берём сверху, большим и средним/указательным пальцами
@@ -793,22 +941,25 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="dame_por_oreja">Dame por oreja</a></h2>
-      <p>"дамэ пор орэха" - дай мне ухо.</p>
+      <h2><a name="dame_por_la_oreja" lang="es">Dame por la oreja</a></h2>
+      <p>"дамэ пор ла орэха" - дай мне ухо.</p>
       <p>Dame за ухо.</p>
       <details>
-	<p>Мизинцем (и безымянным пальцем) упираемся за ухом в голову.</p>
+	<p>Мизинцем (и безымянным пальцем) упираемся за ухом в её голову.</p>
       </details>
     </div>
 
     <div>
-      <h2><a name="dame_por_orejas">Dame por orejas</a></h2>
-      <p>"дамэ пор орэхас" - дай мне уши</p>
+      <h2><a name="dame_por_las_orejas" lang="es">Dame por las orejas</a></h2>
+      <p>"дамэ пор лас орэхас" - дай мне уши</p>
       <p>Dame за уши - берём оба уха.</p>
+      <details>
+	<p>Мизинцами (и безымянными пальцами) упираемся за ушами в её голову.</p>
+      </details>
     </div>
 
     <div>
-      <h2><a name="dame_por_cheburashka">Dame por Чебурашка</a></h2>
+      <h2><a name="dame_por_cheburashka" lang="es">Dame por Чебурашка</a></h2>
       <p>Dame за оба уха как Чебурашку.</p>
       <details>
         <p>Авторская фигура</p>
@@ -817,14 +968,14 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="dame_por_brazo">Dame por brazo</a></h2>
-      <p>"дамэ пор брасо" - дай мне руку.</p>
+      <h2><a name="dame_por_el_brazo" lang="es">Dame por el brazo</a></h2>
+      <p>"дамэ пор эль брасо" - дай мне руку.</p>
       <p>Dame за локоть левой руки.</p>
     </div>
 
     <div>
-      <h2><a name="dame_por_estomago">Dame por estomago</a></h2>
-      <p>"дамэ пор эстомаго" - дай мне живот.</p>
+      <h2><a name="dame_por_el_estomago" lang="es">Dame por el estomago</a></h2>
+      <p>"дамэ пор эль эстомаго" - дай мне живот.</p>
       <p>Dame за живот.</p>
       <details>
         <p>Ладонь на живот и на поддержании контакта.</p>
@@ -832,8 +983,8 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="dame_por_culo">Dame por culo</a></h2>
-      <p>"дамэ пор куло" - дай мне задницу.</p>
+      <h2><a name="dame_por_el_culo" lang="es">Dame por el culo</a></h2>
+      <p>"дамэ пор эль куло" - дай мне задницу.</p>
       <p>Dame за попу.</p>
       <details>
         <p>Громкий шлепок в предпопие и dame.</p>
@@ -845,8 +996,8 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="dame_por_rodilla">Dame por rodilla</a></h2>
-      <p>"дамэ пор родийо" - дай мне колено.</p>
+      <h2><a name="dame_por_la_rodilla" lang="es">Dame por la rodilla</a></h2>
+      <p>"дамэ пор ла родийа" - дай мне колено.</p>
       <p>Dame за колено.</p>
       <details>
         <p>Берёшь за коленную чашечку.</p>
@@ -854,8 +1005,8 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="dame_por_pierna">Dame por pierna</a></h2>
-      <p>"дамэ пор пьерна" - дай мне ногу</p>
+      <h2><a name="dame_por_la_pierna" lang="es">Dame por la pierna</a></h2>
+      <p>"дамэ пор ла пьерна" - дай мне ногу</p>
       <p>Dame за ногу.</p>
       <details>
 	<p>Берём девушку под колено и она вынуждена прыгать на одной ноге - мы
@@ -864,8 +1015,8 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="dame_por_pie">Dame por pie</a></h2>
-      <p>"дамэ пор пье" - дай мне ногу.</p>
+      <h2><a name="dame_por_el_pie" lang="es">Dame por el pie</a></h2>
+      <p>"дамэ пор эль пье" - дай мне стопу/ступню.</p>
       <p>Dame за пятку.</p>
       <details>
         <p>Берёшь за пятку, она прыгает на одной ноге.</p>
@@ -873,7 +1024,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="yogur_tres_afuera">Yogur [tres [afuera]]</a></h2>
+      <h2><a name="yogur_tres_afuera" lang="es">Yogur [tres [afuera]]</a></h2>
       <p>"йогур" - йогурт.</p>
       <p>Подходишь к партнёрше и крутишь животом.</p> 
       <details>
@@ -886,7 +1037,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="setenta">Setenta</a></h2>
+      <h2><a name="setenta" lang="es">Setenta</a></h2>
       <p>"сетента" - семьдесят.</p>
       <p>Выводишь перед собой, поворачиваешь её с двух рук по ч.с., Enchufla,
       меняетесь местами, Enchufla, в центр как Prima corta.</p>
@@ -916,7 +1067,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="setenta_y_una">Setenta y una</a></h2>
+      <h2><a name="setenta_y_una" lang="es">Setenta y una</a></h2>
       <p>"сетента и уна" - семьдесят один.</p>
       <p>Начало Setenta, Enchufla, закидываешь один локоть и Dile que no.</p>
       <details>
@@ -928,7 +1079,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="setenta_y_dos">Setenta y dos</a></h2>
+      <h2><a name="setenta_y_dos" lang="es">Setenta y dos</a></h2>
       <p>"сетента и дос" - семьдесят два.</p>
       <p>Начало Setenta, Enchufla, закидываешь оба локтя, кружитесь и Dile que
       no.</p>
@@ -946,7 +1097,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="setenta_y_tres">Setenta y tres</a></h2>
+      <h2><a name="setenta_y_tres" lang="es">Setenta y tres</a></h2>
       <p>"сетента и трес" - семьдесят три.</p>
       <p>Setenta, но в конце 3 Sacala, проходка, Enchufla из круга, в круг,
       хлопок и к следующей.</p>
@@ -975,7 +1126,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="setenta_y_cinco">Setenta y cinco</a></h2>
+      <h2><a name="setenta_y_cinco" lang="es">Setenta y cinco</a></h2>
       <p>"сетента и синко" - семьдесят пять.</p>
       <p>Выводишь перед собой, поворачиваешь её с двух рук по ч.с., Enchufla,
       её руки в твою правую, сам левой в центр, обходишь, её руки в левую, в
@@ -995,7 +1146,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="setenta_complicado">Setenta complicado</a></h2>
+      <h2><a name="setenta_complicado" lang="es">Setenta complicado</a></h2>
       <p>"сетента компликадо" - семьдесят сложная.</p>
       <p>Выводишь перед собой, поворачиваешь её с двух рук по ч.с., подныриваешь
       в арку и поворачиваешь её за спиной, поворачиваешься к ней, Enchufla, её
@@ -1026,7 +1177,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="policia">Policia</a></h2>
+      <h2><a name="policia" lang="es">Policía</a></h2>
       <p>"полисия" - полиция.</p>
       <p>Enchufla, обыск.</p>
       <details>
@@ -1037,8 +1188,8 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="policia_municipal">Policia municipal</a></h2>
-      <p>"полиция муниципаль" - муниципальная полиция.</p>
+      <h2><a name="policia_municipal" lang="es">Policía municipal</a></h2>
+      <p>"полисия муниципаль" - муниципальная полиция.</p>
       <p>Enchufla, обе её руки в правую, ведёшь в круг и обыскиваешь по
       инструкции.</p>
       <details>
@@ -1047,7 +1198,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
         <p>Cambio ["камбио"] - изменение. Смена: правая на подвздошную, левая
         чуть выше слева. Поворот девушки по часовой и встанешь на её место. Если
         ты в круге, то же, что и basta.</p>
-        <p>[una/dos/tres] derecho ["... деречо"] - ... право. Переход вправо
+        <p>[una/dos/tres] derecha ["... дереча"] - ... право. Переход вправо
         парней.</p>
         <p>[una/dos/tres] izquierda ["... изкьерда"] - ... лево. Переход парней
         влево.</p>
@@ -1058,7 +1209,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="televizor">Televizor</a></h2>
+      <h2><a name="televisor" lang="es">Televisor</a></h2>
       <p>"телевизор" - телевизор.</p>
       <p>Sombrero и усадил на правое колено, до Basta.</p>
       <details>
@@ -1069,14 +1220,14 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="serial">Serial</a></h2>
+      <h2><a name="serial" lang="es">Serial</a></h2>
       <p>"сериал" - сериал.</p>
       <p>Sombrero, сажаешь на правое колено, пересаживаешь на другое через
       Sombrero по команде?</p>
     </div>
 
     <div>
-      <h2><a name="copelia_con_caramelo_chocolate">Copelia [con
+      <h2><a name="capelia_con_caramelo_chocolate" lang="es">Capelia [con
       chocolate/caramelo]</a></h2>
       <p>"капелия"</p>
       <p>Enchufla, (в центр, Sacala) * 3, прячешь свою за себя, шлёпаешь
@@ -1117,7 +1268,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
         кого шлёпать и может дотянуться не до той попы...</p>
         <p>Можно во время crossado "подвисать".</p>
       </details>
-      <p>Copelia con chocolate/caramelo - то же самое, но на Sacala надеваешь на
+      <p>Capelia con chocolate/caramelo - то же самое, но на Sacala надеваешь на
       неё петельку и толкаешь в центр.</p>
       <details>
         <p>1. Так же п. 1-3.</p>
@@ -1135,8 +1286,8 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="prima_y_pajara">Prima y pajara</a></h2>
-      <p>"прима и пахара"</p>
+      <h2><a name="prima_y_pajaro" lang="es">Prima y pájaro</a></h2>
+      <p>"прима и пахаро"</p>
       <p>Prima, 2.5 вращениями переходишь к следующей.</p>
       <details>
         <p>1. Делаем Prima, на V проходишь под аркой.</p>
@@ -1147,16 +1298,16 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="prima_y_pajara_y_arriba">Prima y pajara y arriba</a></h2>
-      <p>"прима и пахара и ариба"</p>
-      <p>Как prima pajara, но к предыдущей партнёрше - 1.5 круга.</p>
+      <h2><a name="prima_y_pajaro_y_arriba" lang="es">Prima y pájaro y arriba</a></h2>
+      <p>"прима и пахаро и ариба"</p>
+      <p>Как prima pajaro, но к предыдущей партнёрше - 1.5 круга.</p>
       <details>
         <p>После прохода под аркой опускаем руку. Не заваливаемся на спину.</p>
       </details>
     </div>
 
     <div>
-      <h2><a name="enchufla_x">Enchufla X</a></h2>
+      <h2><a name="enchufla_x" lang="es">Enchufla X</a></h2>
       <p>"энчуфла экис"</p>
       <p>Enchufla, переходим через одну, возвращаемся на одну.</p>
       <details>
@@ -1170,7 +1321,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="enchufla_moderno">Enchufla moderno</a></h2>
+      <h2><a name="enchufla_moderno" lang="es">Enchufla moderno</a></h2>
       <p>"энчуфла модерно" - современная</p>
       <p>Enchufla, прыжок центр и на исходную.</p>
       <details>
@@ -1189,8 +1340,8 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="castigala_uno_dos_tres_con_pierna">Castigala uno/dos/(tres [con pierna])</a></h2>
-      <p>"кастигала" - наказание. "pierna" - ножка</p>
+      <h2><a name="castigala_uno_dos_tres_con_pierna" lang="es">Castígala uno/dos/(tres [con pierna])</a></h2>
+      <p>"кастигала" - наказание. "pierna" - нога</p>
       <p>Enchufla, шлепок по (руке/руке, макушке/руке, макушке попе/руку,
       макушке попе с ноги).</p>
       <details>
@@ -1207,7 +1358,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="enchufla_y_cadrile">Enchufla y cadrile</a></h2>
+      <h2><a name="enchufla_y_cadrile" lang="es">Enchufla y cadrile</a></h2>
       <p>"энчуфла и кадриль" - с кадрилью.</p>
       <p>Enchufla, берёмся под локти и бегаем по кругу, хлопая пятками себе по
       попе.</p>
@@ -1220,16 +1371,16 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="pal_piso">Pal piso</a></h2>
-      <p>"паль писо" - приятель пол.</p>
+      <h2><a name="pal_piso" lang="es">Pal piso</a></h2>
+      <p>"паль писо" - пей до дна.</p>
       <p>На I топаешь и откидываешься "побухать" с криком, на V возвращаешься в
       пару. Делают с криком "хэй!".</p>
     </div>
 
     <div>
-      <h2><a name="un_foto">Un foto</a></h2>
-      <p>"ун фото" - картина.</p>
-      <p>Enchufla и фото.</p>
+      <h2><a name="una_foto" lang="es">Una foto</a></h2>
+      <p>"уна фото" - фотография.</p>
+      <p>Enchufla и делаешь фото.</p>
       <details>
         <p>1. Enchufla.</p>
         <p>2. Подносишь руки биноклем к её лицу, приближаешь своё лицо и на VII
@@ -1240,7 +1391,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="foto_de_la_madre">Foto de la madre</a></h2>
+      <h2><a name="foto_de_la_madre" lang="es">Foto de la madre</a></h2>
       <p>"фото де ля мадре" - изображение матери.</p>
       <p>Enchufla и долгое фото следующей партнёрши.</p>
       <details>
@@ -1253,7 +1404,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="doble_play">Doble play</a></h2>
+      <h2><a name="doble_play" lang="es">Doble play</a></h2>
       <p>"добле плей" - двойная игра.</p>
       <p>Enchufla doble, входишь в центр, с левой топ-топ-хлоп-хлоп и к
       следующей.</p>
@@ -1269,7 +1420,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="doble_play_en_salada">[Doble play] ensalada</a></h2>
+      <h2><a name="doble_play_en_salada" lang="es">[Doble play] ensalada</a></h2>
       <p>"добле плей ensalada" - салат двойной игры.</p>
       <p>Enchufla doble, входишь в центр, с левой топ-топ-хлоп-хлоп, берётесь
       за плечи и идёте вправо, влево, потом к своей партнёрше.</p>
@@ -1287,7 +1438,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="valsero">Valsero</a></h2>
+      <h2><a name="valsero" lang="es">Valsero</a></h2>
       <p>"бальсеро"</p>
       <p>Начинаем Sombrero, заводим за спину, качельки по плечикам, прокручиваем
       дальше перед собой и Sombrero.</p>
@@ -1302,7 +1453,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="el_ringe">El ringe</a></h2>
+      <h2><a name="el_ringe" lang="es">El ringe</a></h2>
       <p>"эль ринге" - ринг.</p>
       <p>Enchufla, pаводим за спину, хватаем её выше колена, просунув правую
       руку у себя между ног и убегаем. Девушки повизгивают.</p>
@@ -1326,7 +1477,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="el_medico_de_la_salsa">El medico de la salsa</a></h2>
+      <h2><a name="el_medico_de_la_salsa" lang="es">El médico de la salsa</a></h2>
       <p>"эль медико де ля сальса" - доктор сальса.</p>
       <p>Enchufla, идём в центр, руки на плечи и качаемся вправо-влево, крутя
       задом, возвращаемся к своей.</p>
@@ -1349,7 +1500,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="una_piscina">Una piscina</a></h2>
+      <h2><a name="una_piscina" lang="es">Una piscina</a></h2>
       <p>"уна писина" - бассейн.</p>
       <p>Enchufla и ныряем.</p>
       <details>
@@ -1362,7 +1513,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="el_avion">El avion</a></h2>
+      <h2><a name="el_avion" lang="es">El avion</a></h2>
       <p>"эль авион" - самолёт.</p>
       <p>Enchufla, и самолётиком облетаешь партнёрш изнутри и снаружи круга до
       basta.</p>
@@ -1380,8 +1531,8 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="prima_no_la_suelta">Prima no la suelta</a></h2>
-      <p>"прима но ла суельта" - двоюродный брат не отпускает её.</p>
+      <h2><a name="prima_no_la_suelta" lang="es">Prima no la suelta</a></h2>
+      <p>"прима но ла суельта" - двоюродная сестра, не отпускай её.</p>
       <p>Prima, во время прохода под петлёй, тянешь её левой в центр,
       прокручиваешь её по ч.с., заводишь справа от себя из круга и на
       исходную после натяга.</p>
@@ -1400,21 +1551,21 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="enchufla_y_com_quere">Enchufla y com quere</a></h2>
-      <p>"энчуфла и ком кере" - энчуфла как хочу.</p>
+      <h2><a name="enchufla_y_como_quiere" lang="es">Enchufla y como quiere</a></h2>
+      <p>"энчуфла и комо кьере" - энчуфла как хочешь.</p>
       <p>Enchufla, потом бежишь к любой партнёрше и делаешь с ней Dile que
       no.</p>
     </div>
 
     <div>
-      <h2><a name="mantequilla_suave">Mantequilla suave</a></h2>
+      <h2><a name="mantequilla_suave" lang="es">Mantequilla suave</a></h2>
       <p>"мантекила суаве" - мягкое масло.</p>
       <p>Подходишь к своей партнёрше и размазываешь по ней масло сверху вниз по
       бокам, потом со следующей, потом по себе растираешь до Basta.</p>
     </div>
 
     <div>
-      <h2><a name="momia">Momia</a></h2>
+      <h2><a name="momia" lang="es">Momia</a></h2>
       <p>"момия" - мумия.</p>
       <p>Берёшь следующую за горло и трясёшь её до Basta, делая Dile que no за
       горло.</p>
@@ -1426,7 +1577,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="borracho">Borracho</a></h2>
+      <h2><a name="borracho" lang="es">Borracho</a></h2>
       <p>"борачо" - пьяный.</p>
       <p>I-IV Sombrero, V-VIII медленно "падаешь" на неё и встаёшь прямо.</p>
       <details>
@@ -1441,7 +1592,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="borracha_ella_borracha">Borracha/(Ella borracha)</a></h2>
+      <h2><a name="borracha_ella_borracha" lang="es">Borracha/(Ella borracha)</a></h2>
       <p>"борача/эйя борача" - пьяная/она пьяная.</p>
       <p>I-IV Sombrero перед собой, V-VIII приобнимаешь, отходишь назад,
       возвращаешься.</p>
@@ -1456,7 +1607,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="cadena_complicado">Cadena [complicado]</a></h2>
+      <h2><a name="cadena_complicado" lang="es">Cadena [complicado]</a></h2>
       <p>"кадена" - цепь.</p>
       <p>Берём правую за руку, Enchufla с левой, потом заходишь в круг,
       поворачиваясь из круга, выходишь из круга, повернувшись в центр до
@@ -1488,12 +1639,12 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="echeverria_y_dame_con_cuenta">Echeverria [y dame con cuenta]</a></h2>
+      <h2><a name="echeverria_y_dame_con_cuenta" lang="es">Echeverria [y dame con cuenta]</a></h2>
       <p>"эчеверия [и даме кон куента]" - эчеверия и даме с отчётом?</p>
       <p>Топ на VII, rock'n roll на I-III сначала влево. Dame con cuenta -
       проходишь под рукой к следующей.</p>
       <details>
-        <p>1. Топ на VII как в Por de atras.</p>
+        <p>1. Топ на VII как в Por detrás.</p>
         <p>2. I-III влево коленками, вправо и снова влево.</p>
         <p>3. Продолжаешь обычный шаг лицом в центр.</p>
         <p>Echeverria y dame con cuenta - когда правой рукой с ней встречаешься,
@@ -1505,8 +1656,8 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="enchufla_manolin_nipa_ti_nipa_mi">Enchufla manolin [ni
-      pa'ti/ni pa'mi [- compicada]]</a></h2>
+      <h2><a name="enchufla_manolin_nipa_ti_nipa_mi" lang="es">Enchufla manolín [ni
+      pa'ti/ni pa'mí [- compicada]]</a></h2>
       <p>"энчуфла манолин [ни па ти/ни па ми [- компликада]]" - .</p>
       <p>Enchufla, выходишь перед своей партнёршей к центру. Качаешься
       влево-вправо, заглядывая через плечо к ней. Nipa - ещё и с хлопками к
@@ -1525,20 +1676,20 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="la_familia">La familia</a></h2>
+      <h2><a name="la_familia" lang="es">La familia</a></h2>
       <p>"ла фамилия" - .</p>
       <p>После Dame берёшься под локти со следующей, один оборот и дальше.</p>
     </div>
 
     <div>
-      <h2><a name="prima_y_la_familia">Prima y la familia</a></h2>
+      <h2><a name="prima_y_la_familia" lang="es">Prima y la familia</a></h2>
       <p>"прима и ла фамилия" - .</p>
       <p>Делаешь Prima, потом под локти берёшься и La familia.</p>
     </div>
 
     <div>
-      <h2><a name="tumba_francessa">Tumba francessa</a></h2>
-      <p>"nтумба францесса" - .</p>
+      <h2><a name="tumba_francesa" lang="es">Tumba francesa</a></h2>
+      <p>"тумба франсеса" - французская могила.</p>
       <p>Enchufla, берёмся под локти как La familia, переходим к следующей и
       т.д. до Basta. Dile que no с правой руки.</p>
       <details>
@@ -1556,7 +1707,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="enchufla_picadilly">[Enchufla] picadilly</a></h2>
+      <h2><a name="enchufla_picadilly" lang="es">[Enchufla] picadilly</a></h2>
       <p>"[энчуфла] пикадили" - .</p>
       <p>Enchufla, берёмся за предплечья, переходим к следующей и т.д. до Basta.
       Dile que no с правой руки.</p>
@@ -1572,7 +1723,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="dame_coca_cola">Dame coca-cola</a></h2>
+      <h2><a name="dame_coca_cola" lang="es">Dame coca-cola</a></h2>
       <p>"дамэ кока-кола" - .</p>
       <p>Dame, за плечо поворачиваешь её пр. ч.с из круга, и ещё одно Dame в
       круг.</p>
@@ -1588,14 +1739,14 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
 
 
     <div>
-      <h2><a name="dame_elegante">Dame elegante</a></h2>
+      <h2><a name="dame_elegante" lang="es">Dame elegante</a></h2>
       <p>"дамэ элеганте" - .</p>
       <p>Делаешь Dame, докручиваешься  из круга, делаешь ещё одно Dame в круг с
       оттяжечкой.</p>
     </div>
 
     <div>
-      <h2><a name="kentukki">Kentukki</a></h2>
+      <h2><a name="kentukki" lang="es">Kentukki</a></h2>
       <p>"кентуки" - .</p>
       <p>Enchufla с двух рук, заматываешь в руки, разворачиваешь из рук пр.
       ч.с., заведя правую руку ей за спину, Dame.</p>
@@ -1616,7 +1767,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="nipa_ti_nipa_mi_arriba_abajo">Nipa ti - nipa mi [arriba/abajo]</a></h2>
+      <h2><a name="nipa_ti_nipa_mi_arriba_abajo" lang="es">Nipa ti - nipa mí [arriba/abajo]</a></h2>
       <p>"нипа ти - нипа ми [ариба/абахо]" - .</p>
       <p>Хлопаешь в ладоши, потом ладушки с правой, снова хлопок - с левой. До
        Basta.</p>
@@ -1625,19 +1776,19 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="mata_cucaracha_con_tecnica">[Mata] cucaracha [con tecnica]</a></h2>
+      <h2><a name="mata_cucaracha_con_tecnica" lang="es">[Mata] cucaracha [con tecnica]</a></h2>
       <p>"[мата] кукарача [кон текника]" - .</p>
       <p>Enchufla, топаешь, давя тараканов.</p>
       <p>Con tecnica - с дихлофосом - озвучиваешь "пшшшш", и распыляешь на пол.</p>
     </div>
 
     <div>
-      <h2><a name="rompala_y_media_y_pajara">Rompala [y media [y pajara]]</a></h2>
-      <p>"ромпала [и медиа [и пахара]]" - .</p>
+      <h2><a name="rompela_y_al_medio_y_pajaro" lang="es">Rómpela [y al medio [y pájaro]]</a></h2>
+      <p>"ромпeла [и аль медио [и пахаро]]" - .</p>
       <p>Хватаешь руки вскрест, проводишь справа под рукой, потянув вниз. Она в
       наклоне проходит.</p>
-      <p>Y media - останавливаешь справа и ведёшь слева, далее.</p>
-      <p>Y media y pajara - после media крутишься и сразу в контакт
+      <p>Y al medio - останавливаешь справа и ведёшь слева, далее.</p>
+      <p>Y al medio y pájaro - после media крутишься и сразу в контакт
       ладонями.</p>
       <details>
         <p>1. I-IV Передаёшь её правую руку из своей левой руки в правую. Грудак
@@ -1647,7 +1798,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
         ладонями.</p>
         <p>Rompala y media притормаживаешь её под правой рукой, опустив свою
         правую и обхватив её за талию.</p>
-        <p>Rompala y media y pajara проводя её слева, сам начинаешь правой ногой
+        <p>Rompala y media y pajaro проводя её слева, сам начинаешь правой ногой
 	косолапо заворачивать пр. ч.с., двигаясь от локтя правой руки.
 	Доворачиваясь, поднимаешь локоть, отпускаешь - как бы описав восьмёрку
 	(такое хлёсткое движение). Довернувшись, сверху приземляешь ладонь
@@ -1656,7 +1807,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
    
     <div>
-      <h2><a name="enchufla_220">Enchufla 220</a></h2>
+      <h2><a name="enchufla_220" lang="es">Enchufla 220</a></h2>
       <p>"энчуфла 220" - подключи её 220.</p>
       <p>Enchufla, идёшь к следующей, обнимаешь, приподнимая и тряся (220),
       Dame.</p>
@@ -1672,8 +1823,8 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="abrazando">Abrazando</a></h2>
-      <p>"абрасандо" - всеобъемлющ.</p>
+      <h2><a name="abrazando" lang="es">Abrazando</a></h2>
+      <p>"абрасандо" - обнимая/в обнимку.</p>
       <p>Авторская.</p>
       <p>За локоть проворачиваешь её к себе, приземляешь на грудь, Dame.</p>
       <details>
@@ -1687,7 +1838,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="snickers">Snickers</a></h2>
+      <h2><a name="snickers" lang="es">Snickers</a></h2>
       <p>"сникерс" - сникерс.</p>
       <p>Идёте Arriba вдоль круга, делаешь Un tarro и проходишь под рукой
       следующей девушки и т.д. до Basta. Ждёте, пока партнёрша вернётся и
@@ -1707,8 +1858,8 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="el_salvaje">El salvaje</a></h2>
-      <p>"эль сальвае" - дикий.</p>
+      <h2><a name="el_salvaje" lang="es">El salvaje</a></h2>
+      <p>"эль сальвахе" - дикий.</p>
       <p>Enchufla, правую руку ей на лоб, поднимаешь на плечо и идёшь вдоль
       круга до Basta.</p>
       <details>
@@ -1722,7 +1873,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="chiquita_pequenita">Chiquita pequenita</a></h2>
+      <h2><a name="chiquita_pequenita" lang="es">Chiquita pequenita</a></h2>
       <p>"чикита пекенита" - маленькая девочка.</p>
       <p>Enchufla, выводишь её из круга, приседаешь, скрутив ноги, встаёшь и
       Dame правой рукой.</p>
@@ -1738,13 +1889,13 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="el_dedo">El dedo</a></h2>
+      <h2><a name="el_dedo" lang="es">El dedo</a></h2>
       <p>"эль дедо" - палец.</p>
       <p>Setenta указательным пальцем правой руки.</p>
     </div>
 
     <div>
-      <h2><a name="sombrero_con_beso">Sombrero con beso</a></h2>
+      <h2><a name="sombrero_con_beso" lang="es">Sombrero con beso</a></h2>
       <p>"сомбреро кон бэсо" - .</p>
       <p>Сомбреро с поцелуем в голову.</p>
       <details>
@@ -1757,10 +1908,10 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="adios_con_vuelta">Adios [con vuelta]</a></h2>
+      <h2><a name="adios_con_vuelta" lang="es">Adiós [con vuelta]</a></h2>
       <p>"адьос [кон вэльта]" - до свидания [с возвратом].</p>
-      <p>Adios - берёшь за две руки, отталкиваешь, притягиваешь вположение как в
-      вальсе, полуоборот и к следующей под рукой.</p>
+      <p>Adios - берёшь за две руки, отталкиваешь, притягиваешь в положение как
+      в вальсе, полуоборот и к следующей под рукой.</p>
       <p>Adios con vuelta - под рукой ещё делаешь оборот во время перехода.</p>
       <details>
         <p></p>
@@ -1779,7 +1930,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="el_gnomo">El Gnomo</a></h2>
+      <h2><a name="el_gnomo" lang="es">El Gnomo</a></h2>
       <p>"эль гномо" - гном.</p>
       <p>Enchufla, громко прыгаешь в круг, повернув голову в центр и согнувшись
       - смешная лыба. 3 громких шажка гномика, активно махая локтями, и Dame (не
@@ -1797,7 +1948,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="estrella">Estrella</a></h2>
+      <h2><a name="estrella" lang="es">Estrella</a></h2>
       <p>"эстрейя" - звезда.</p>
       <p>Enchufla, Sacala, перехватываешь правой за её левую руку и идёте,
       взявшись левыми руками в центре до Basta.</p>
@@ -1824,7 +1975,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="estrella_doble">Estrella doble</a></h2>
+      <h2><a name="estrella_doble" lang="es">Estrella doble</a></h2>
       <p>"эстрейя добле" - звезда двойная.</p>
       <p>Enchufla, Sacala, оставляешь её на месте, сам идёшь по кругу, подняв
       левую руку 2 восьмёрки, разворачиваешься и к своей ещё 2 восьмёрки,
@@ -1843,7 +1994,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="movimento_de_rashid">Movimiento de Rashid</a></h2>
+      <h2><a name="movimento_de_rashid" lang="es">Movimiento de Rashid</a></h2>
       <p>"мовименто де Рашид" - движение Рашида.</p>
       <p>Enhufla, откидываешься в центр круга, встаёшь и Dile que no с правой
       руки.</p>
@@ -1856,7 +2007,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="???">???</a></h2>
+      <h2><a name="???" lang="es">???</a></h2>
       <p>"" - .</p>
       <p>Ведёшь её через центр из круга справа от себя, завернув в конце по ч.с.
       потом как Tomala, но ноги девушек направлены наружу.</p>
@@ -1868,14 +2019,14 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="chaplin">Chaplin</a></h2>
+      <h2><a name="chaplin" lang="es">Chaplin</a></h2>
       <p>"чаплин" - Чаплин.</p>
       <p>Enchufla, и как Чаплин комично шлёпаешь к следующей.</p>
     </div>
 
     <div>
-      <h2><a name="abrazala">Abrazala</a></h2>
-      <p>"абразала" - обнять её.</p>
+      <h2><a name="abrazala" lang="es">Abrázala</a></h2>
+      <p>"абрасала" - обнять её.</p>
       <p>Поворот верхом, заводим за спину, приобнимаем, выходим из обнимашек,
       Enchufla, Dame.</p>
       <details>
@@ -1893,7 +2044,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
  
     <div>
-      <h2><a name="cuatro">Cuatro</a></h2>
+      <h2><a name="cuatro" lang="es">Cuatro</a></h2>
       <p>"кватро" - четыре.</p>
       <p>Её поворот низом по ч.с. с двух рук. </p>
       <details>
@@ -1926,7 +2077,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
 
     <div>
-      <h2><a name="sabantuy">Sabantuy</a></h2>
+      <h2><a name="sabantuy" lang="es">Sabantuy</a></h2>
       <p>"сабантуй"</p>
       <p>Авторская. Придумал Алексей Алексенцев 20.03.20 на занятии. Назвал
       Булат Аминев.</p>
@@ -1948,7 +2099,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
     </div>
  
     <div>
-      <h2><a name="titanic">Titanic</a></h2>
+      <h2><a name="titanic" lang="es">Titanic</a></h2>
       <p>"титаник" - Титаник.</p>
       <p>Начало Sombrero, девушки делают "Титаник" в центр, потом в
       полуобнимашку с присядом, с разгона разворачиваем её по ч.с. и вправо за
@@ -1960,9 +2111,9 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
 	ладоней), приобнимаешь её руками слегка - твои  и её ладони на уровне
 	груди и руки вдоль тела (движение внешне похоже на то, как если бы ты
 	взял две гантельки и поднял их обе, качая бицепс - на себя в
-	вертикальной плоскости). Ты не тянешь её на себя, чтобы она завалилась,
-	а сам наклонён немного вперёд (как и всегда в сальсе) и просто
-	прижимаешь её к себе.</p>
+	вертикальной плоскости - локти вниз). Ты не тянешь её на себя, чтобы она
+	завалилась, а сам наклонён немного вперёд (как и всегда в сальсе) и
+	просто прижимаешь её к себе.</p>
 	<p>2. "IV и" ставишь правую ногу за её каблуки, чтобы не скользила,
 	начинаешь раскрывать руки в стороны на уровне груди.</p>
 	<p>Тянешь руки не строго горизонтально а слегка диагонально вверх, чтобы
@@ -1977,7 +2128,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
 	<p>4. I-IV С корпусом начинаешь раскручивать её вправо - в сторону по
 	ходу движения круга.  Оставляешь у себя её правую руку в правой. и
 	поворачиваешь правой рукой наверху 2 оборота, не забывая опускать руку
-	внизиз, когда она к тебе повернётся.</p>
+	вниз, когда она к тебе повернётся.</p>
 	<p>5. V-VIII Концовка как в Prima corta.</p>
       </details>
     </div>
@@ -1985,7 +2136,7 @@ kilo/La moneda) [con rueda/vuelta] [y arriba]</a></h2>
 
 <!--
     <div>
-      <h2><a name=""></a></h2>
+      <h2><a name="" lang="es"></a></h2>
       <p>"" - .</p>
       <p></p>
       <details>
